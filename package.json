@@ -1,0 +1,24 @@
+{
+  "name": "ednuva-e2e",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Playwright end-to-end automation framework for the Ednuva e-learning website",
+  "scripts": {
+    "test": "playwright test",
+    "test:auth": "playwright test tests/auth",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "test:ui": "playwright test --ui",
+    "report": "playwright show-report",
+    "typecheck": "tsc --noEmit",
+    "mcp": "playwright-mcp --headless --isolated"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^10.0.0",
+    "@playwright/mcp": "^0.0.83",
+    "@playwright/test": "1.56.1",
+    "@types/node": "^22.0.0",
+    "dotenv": "^16.4.5",
+    "typescript": "^5.6.0"
+  }
+}
