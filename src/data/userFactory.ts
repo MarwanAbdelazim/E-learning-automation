@@ -2,39 +2,47 @@ import { faker } from '@faker-js/faker';
 import { env } from '../config/env';
 
 export interface TestUser {
-  firstName: string;
-  lastName: string;
   fullName: string;
+  username: string;
   email: string;
-  phone: string;
+  /** Local Egyptian mobile without the +20 country code, e.g. 1012345678 */
+  mobile: string;
+  whatsapp: string;
   password: string;
+  gender: 'male' | 'female';
 }
 
-/** Builds a unique, valid user so sign-up never collides with an existing account. */
+const ARABIC_FIRST = ['محمد', 'أحمد', 'محمود', 'مصطفى', 'عمر', 'يوسف', 'كريم', 'مريم', 'سارة', 'نور', 'ليلى', 'هدى'];
+const ARABIC_LAST = ['حسن', 'علي', 'إبراهيم', 'عبدالعزيز', 'السيد', 'الجمال', 'منصور', 'سليمان', 'فؤاد', 'رمضان'];
+
+/** Site rule: 6–20 characters, letters, digits and `_ . -` only. */
+export const PASSWORD_RULE = /^[A-Za-z0-9_.-]{6,20}$/;
+
+/**
+ * Builds a unique user that satisfies the site's client-side rules
+ * (Arabic-only full name, password policy, Egyptian mobile format).
+ * The mobile number is the configured test number when available, so tests never
+ * send verification SMS to a random real person.
+ */
 export function createUser(overrides: Partial<TestUser> = {}): TestUser {
-  const firstName = faker.person.firstName().replace(/[^A-Za-z]/g, '') || 'Test';
-  const lastName = faker.person.lastName().replace(/[^A-Za-z]/g, '') || 'User';
-  const unique = `${Date.now()}${faker.number.int({ min: 100, max: 999 })}`;
-  const user: TestUser = {
-    firstName,
-    lastName,
-    fullName: `${firstName} ${lastName}`,
-    email: `qa.${firstName.toLowerCase()}.${unique}@${env.testEmailDomain}`,
-    // Egyptian mobile format: 01[0125] + 8 digits
-    phone: `01${faker.helpers.arrayElement(['0', '1', '2', '5'])}${faker.string.numeric(8)}`,
-    // Upper, lower, digit and symbol to satisfy common password policies
-    password: `Qa!${faker.string.alpha({ length: 4, casing: 'upper' })}${faker.string.alpha({ length: 4, casing: 'lower' })}${faker.string.numeric(3)}`,
+  const unique = `${Date.now().toString(36)}${faker.string.alphanumeric({ length: 3, casing: 'lower' })}`;
+  const mobile = env.testMobile.replace(/^\+?20/, '').replace(/^0/, '') || `10${faker.string.numeric(8)}`;
+  return {
+    fullName: `${faker.helpers.arrayElement(ARABIC_FIRST)} ${faker.helpers.arrayElement(ARABIC_LAST)} ${faker.helpers.arrayElement(ARABIC_LAST)}`,
+    username: `qa_${unique}`.slice(0, 20),
+    email: `qa.${unique}@mailinator.com`,
+    mobile,
+    whatsapp: mobile,
+    password: `Qa_${faker.string.alphanumeric(6)}.${faker.string.numeric(2)}`,
+    gender: faker.helpers.arrayElement(['male', 'female'] as const),
     ...overrides,
   };
-  if (overrides.firstName || overrides.lastName) {
-    user.fullName = `${user.firstName} ${user.lastName}`;
-  }
-  return user;
 }
 
 export const invalidData = {
-  malformedEmails: ['plainaddress', 'missing-at.com', 'user@', '@no-user.com'],
-  weakPassword: '123',
-  wrongPassword: 'Wrong!Pass123',
-  unregisteredEmail: () => `nobody.${Date.now()}@${env.testEmailDomain}`,
+  nonArabicNames: ['Ahmed Ali', 'John', 'محمد Ali'],
+  /** Violate the password rule: too short, illegal symbol, too long. */
+  badPasswords: ['ab1', 'abc!123', 'a'.repeat(21)],
+  wrongPassword: 'Wrong_Pass99',
+  unknownLogin: () => `nobody_${Date.now().toString(36)}`,
 };

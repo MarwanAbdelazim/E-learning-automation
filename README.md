@@ -10,16 +10,19 @@ npx playwright install chromium
 npm test            # setup (auto sign-up) + all tests
 npm run report      # open the HTML report
 ```
-No manual input is required: the `setup` project signs up a generated user, saves it to
-`.auth/user.json` and stores the signed-in session in `.auth/storage-state.json`. Later runs reuse it.
+Runs headless with no manual input. Tests that need a verified account or the SMS OTP skip with a clear
+reason until `TEST_USER_*` / `TEST_MOBILE` + `TEST_OTP` are set (see below). `RECORD_VIDEO=true npm test`
+records every scenario.
 
 ## Configuration (`.env`, all optional — see `.env.example`)
 | Variable | Default | Purpose |
 |----------|---------|---------|
 | `BASE_URL` | staging URL | Site under test |
-| `LOGIN_PATH` / `SIGNUP_PATH` | `/login` / `/signup` | Auth routes |
-| `TEST_USER_EMAIL` / `TEST_USER_PASSWORD` | – | Use an existing account instead of auto sign-up |
-| `TEST_EMAIL_DOMAIN` | `mailinator.com` | Domain for generated emails |
+| `LOGIN_PATH` / `SIGNUP_PATH` | `/login` / `/register` | Auth routes |
+| `LANGUAGE` | `ar` | UI language for the default project |
+| `TEST_USER_LOGIN` / `TEST_USER_PASSWORD` | – | Verified account (username, email or phone) for positive login tests |
+| `TEST_MOBILE` / `TEST_OTP` | – | Staging test number + bypass OTP to run sign-up past mobile verification |
+| `RECORD_VIDEO` | `false` | `true` records video for every test |
 | `HEADLESS` | `true` | `false` to watch the browser |
 
 ## Structure
@@ -27,11 +30,11 @@ No manual input is required: the `setup` project signs up a generated user, save
 src/
   config/env.ts          environment + paths
   data/userFactory.ts    unique test users & invalid data
-  fixtures/index.ts      test fixtures (page objects, registeredUser)
-  pages/                 Page Object Model (BasePage, Header, Login, Signup, text matchers)
-  utils/userStore.ts     persists the generated account
+  data/accounts.ts       verified account lookup + skip reasons
+  fixtures/index.ts      fixtures: page objects, account, language, popup handler, tracker blocking
+  pages/                 Page Object Model (BasePage, Header, Login, Signup, AR/EN text matchers)
 tests/
-  auth.setup.ts          creates/reuses the account, saves session
+  auth.setup.ts          logs in with the verified account and saves the session
   auth/login.spec.ts     login scenarios
   auth/signup.spec.ts    sign-up scenarios
   seed.spec.ts           seed for Playwright Test Agents

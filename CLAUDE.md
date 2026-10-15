@@ -26,6 +26,9 @@ Loop for each new feature step:
 - Page objects live in `src/pages/`; tests never use raw selectors when a page-object getter exists.
 - Locators: prefer `getByRole` / `getByLabel` / `getByPlaceholder`; site copy lives in `src/pages/text.ts`
   (English + Arabic). Fix copy there first.
-- Test data from `src/data/userFactory.ts` – always unique, never hard-coded accounts.
+- Test data from `src/data/userFactory.ts` – always unique; full names must be Arabic, passwords 6–20 of `[A-Za-z0-9_.-]`.
+- Never click "Verify" (تأكيد الرقم) with a random valid mobile – it sends a real SMS. Only use `TEST_MOBILE`.
+- Known site bugs are tests marked `test.fail()` with a `bug` annotation; keep the expected behaviour, don't flip the assertion.
+- The site is Arabic by default; run both projects (`chromium-ar`, `chromium-en`) after locator changes.
 - Tests import `test`/`expect` from `src/fixtures`.
 - `.env` and `.auth/` are git-ignored; never commit credentials.

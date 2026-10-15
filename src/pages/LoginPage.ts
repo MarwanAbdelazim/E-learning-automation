@@ -1,6 +1,6 @@
-import { expect, type Locator, type Page } from '@playwright/test';
+import { expect, type Page } from '@playwright/test';
 import { env } from '../config/env';
-import { BasePage } from './BasePage';
+import { BasePage, PAGE_READY_TIMEOUT } from './BasePage';
 import { HeaderComponent } from './HeaderComponent';
 import { text } from './text';
 
@@ -12,59 +12,61 @@ export class LoginPage extends BasePage {
     this.header = new HeaderComponent(page);
   }
 
-  get form(): Locator {
-    return this.page.locator('form').filter({ has: this.page.locator('input[type="password"]') }).first();
+  get form() {
+    return this.page.getByRole('region', { name: text.loginRegion });
   }
 
-  get emailInput(): Locator {
-    return this.page
-      .getByLabel(text.emailOrPhone)
-      .or(this.page.getByPlaceholder(text.emailOrPhone))
-      .or(this.page.locator('input[type="email"], input[name*="email" i], input[autocomplete="username"]'))
-      .first();
+  get heading() {
+    return this.form.getByRole('heading', { name: text.loginHeading });
   }
 
-  get passwordInput(): Locator {
-    return this.page.locator('input[type="password"]').first();
+  get identifierInput() {
+    return this.form.getByLabel(text.loginIdentifier);
   }
 
-  get submitButton(): Locator {
-    return this.form
-      .locator('button[type="submit"], input[type="submit"]')
-      .or(this.page.getByRole('button', { name: text.login }))
-      .first();
+  get passwordInput() {
+    return this.form.getByLabel(text.password);
   }
 
-  get forgotPasswordLink(): Locator {
-    return this.page.getByRole('link', { name: /forgot|reset|نسيت/i }).first();
+  get showPasswordButton() {
+    return this.form.getByRole('button', { name: text.showPassword });
   }
 
-  get signupLink(): Locator {
-    return this.page.getByRole('link', { name: text.signup }).first();
+  get submitButton() {
+    return this.form.getByRole('button', { name: text.loginButton });
+  }
+
+  get forgotPasswordLink() {
+    return this.form.getByRole('link', { name: text.forgotPassword });
+  }
+
+  get createAccountLink() {
+    return this.form.getByRole('link', { name: text.createAccount });
   }
 
   async open() {
     await this.goto(env.loginPath);
-    await expect(this.passwordInput, 'login form should render').toBeVisible();
+    await expect(this.heading).toBeVisible({ timeout: PAGE_READY_TIMEOUT });
   }
 
-  async login(email: string, password: string) {
-    await this.emailInput.fill(email);
+  async fill(identifier: string, password: string) {
+    await this.identifierInput.fill(identifier);
     await this.passwordInput.fill(password);
+  }
+
+  async login(identifier: string, password: string) {
+    await this.fill(identifier, password);
     await this.submitButton.click();
-    await this.waitForSettled();
   }
 
   async expectLoggedIn() {
-    await expect(this.page, 'should navigate away from the login page').not.toHaveURL(new RegExp(`${env.loginPath}/?(\\?|$)`), {
-      timeout: 20_000,
-    });
-    await expect(this.passwordInput, 'login form should be gone').toBeHidden();
+    await expect(this.page, 'should leave the login page').not.toHaveURL(new RegExp(`${env.loginPath}/?(\\?|$)`), { timeout: 20_000 });
     await this.header.expectLoggedIn();
   }
 
-  async expectLoginRejected() {
-    await expect(this.passwordInput, 'should stay on the login form').toBeVisible();
-    await this.expectValidationError([this.emailInput, this.passwordInput]);
+  async expectInvalidCredentials() {
+    await this.expectToast(text.invalidCredentials);
+    await expect(this.page).toHaveURL(new RegExp(`${env.loginPath}/?(\\?|$)`));
+    await expect(this.heading).toBeVisible();
   }
 }

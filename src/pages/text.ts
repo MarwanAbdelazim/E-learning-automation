@@ -1,22 +1,62 @@
 /**
- * Bilingual (English / Arabic) text matchers used by the page objects.
- * Keeping them here means a copy change on the site is a one-line fix.
+ * Site copy for Arabic (default) and English, captured from the staging site.
+ * Each matcher accepts both languages so page objects work in either locale.
+ * When the site copy changes, fix it here first.
  */
+const both = (ar: string, en: string, flags = 'i') => new RegExp(`^\\s*(?:${ar}|${en})\\s*\\*?\\s*$`, flags);
+
 export const text = {
-  login: /^\s*(log\s?in|sign\s?in|تسجيل الدخول|دخول)\s*$/i,
-  signup: /^\s*(sign\s?up|register|create (an )?account|join( now)?|get started|إنشاء حساب|انشاء حساب|تسجيل|اشترك)\s*$/i,
-  logout: /(log\s?out|sign\s?out|تسجيل الخروج|خروج)/i,
-  email: /(e-?mail|البريد)/i,
-  emailOrPhone: /(e-?mail|phone|mobile|username|البريد|الهاتف|الجوال|رقم)/i,
-  password: /^(?!.*confirm)(?!.*تأكيد).*(password|كلمة المرور|كلمة السر)/i,
-  confirmPassword: /(confirm|re-?enter|repeat|تأكيد).*(password|كلمة)/i,
-  firstName: /(first\s?name|الاسم الأول)/i,
-  lastName: /(last\s?name|surname|family name|اسم العائلة|الاسم الأخير)/i,
-  fullName: /^(full\s?name|name|your name|الاسم|الاسم بالكامل|الاسم الكامل)$/i,
-  phone: /(phone|mobile|الهاتف|الجوال|رقم الموبايل)/i,
-  terms: /(terms|agree|privacy|الشروط|أوافق|اوافق)/i,
-  student: /^\s*(student|learner|طالب)\s*$/i,
-  verification: /(verify|verification|otp|confirm your email|check your (email|inbox)|تحقق|تأكيد البريد|رمز)/i,
-  errorHint:
-    /(invalid|incorrect|wrong|required|not (be )?valid|doesn'?t match|do not match|must|already|exists|taken|failed|error|غير صحيح|خطأ|مطلوب|غير صالح|مستخدم بالفعل|موجود)/i,
+  // Header / navigation
+  headerLogin: both('تسجيل الدخول', 'Log ?in|Login'),
+  headerSignup: both('اعمل حساب جديد', 'Create (?:new )?account|Sign ?up'),
+  languageToggle: both('تغيير اللغة', 'Change language'),
+
+  // Login
+  loginRegion: both('تسجيل الدخول', 'Authentication'),
+  loginHeading: both('سجّل دخول لحسابك', 'Login to your account'),
+  loginIdentifier: both('اسم المستخدم أو البريد أو الهاتف', 'Username, email,? or phone'),
+  password: both('كلمة المرور', 'Password'),
+  loginButton: both('تسجيل الدخول', 'Login'),
+  showPassword: both('ورّي كلمة المرور', 'Show password'),
+  hidePassword: /(اخفي|خبّي|إخفاء|hide).*(كلمة المرور|password)/i,
+  forgotPassword: both('نسيت كلمة المرور؟', 'Forgot password\\?'),
+  createAccount: both('اعمل حساب', 'Create account'),
+  // API 400 message (AR text contains the site's own typo "الانت") and the client fallback used when the API is unreachable.
+  invalidCredentials:
+    /(البيانات الانت مدخلها مش متطابقة|البيانات اللي انت مدخلها مش متطابقة|اسم المستخدم أو كلمة المرور غلط|These credentials do not match our records)/i,
+
+  // Sign-up: account type
+  signupRegion: /^Signup form$/i,
+  accountTypeHeading: both('اختار نوع حسابك', 'Choose your account type'),
+  schoolStudent: /^(طالب مدرسة|High School Student)/i,
+  universityStudent: /^(طالب جامعي|University Student)/i,
+  continue: both('كمّل', 'Continue'),
+  back: both('رجوع', 'Back'),
+  haveAccountLogin: both('تسجيل الدخول', 'Log ?in'),
+
+  // Sign-up: step 1 (account details)
+  /** School track has 4 steps, university track has 3. */
+  stepOf: (n: number, total: number | string = '\\d+') => new RegExp(`(الخطوة ${n} من ${total}|Step ${n} of ${total})`, 'i'),
+  detailsHeading: both('بيانات حسابك', 'Your account details'),
+  fullName: both('الاسم الكامل', 'Full name'),
+  gender: both('النوع', 'Gender'),
+  male: both('ذكر', 'Male'),
+  female: both('أنثى', 'Female'),
+  username: both('اسم المستخدم', 'Username'),
+  nationalId: both('الرقم القومي \\(اختياري\\)', 'National ID'),
+  email: both('البريد الإلكتروني', 'Email'),
+  mobile: both('رقم الموبايل', 'Mobile number'),
+  whatsapp: both('رقم الواتساب', 'WhatsApp number'),
+  confirmPassword: both('أكد كلمة المرور', 'Confirm password'),
+  governorate: both('المحافظة', 'Governate|Governorate'),
+  governorateSearch: /(دوّر في المحافظات|Search)/i,
+  city: both('المدينة', 'City'),
+  verifyMobile: both('تأكيد الرقم', 'Verify'),
+  otpInput: both('كود التأكيد', 'Verification code|OTP|Code'),
+  confirmOtp: both('تأكيد الكود', 'Confirm code|Verify code'),
+  otpSent: /(بعتنا كود في رسالة SMS|sent .*code|SMS)/i,
+  arabicOnly: /(دخل حروف عربية بس|Please enter Arabic letters only)/i,
+  passwordRule: /(من 6 إلى 20 حرفًا|6–20 characters)/i,
+  closeDialog: both('اقفل', 'Close'),
+  noResults: /(مفيش نتائج مطابقة|No (matching )?results)/i,
 };
