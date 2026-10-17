@@ -11,11 +11,11 @@
     "test:ui": "playwright test --ui",
     "report": "playwright show-report",
     "typecheck": "tsc --noEmit",
-    "mcp": "playwright-mcp --headless --isolated"
+    "report:serve": "playwright show-report --host 0.0.0.0 --port 9323",
+    "postinstall": "playwright install chromium"
   },
   "devDependencies": {
     "@faker-js/faker": "^10.0.0",
-    "@playwright/mcp": "^0.0.83",
     "@playwright/test": "1.56.1",
     "@types/node": "^22.0.0",
     "dotenv": "^16.4.5",

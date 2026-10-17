@@ -3,6 +3,17 @@
 Playwright + TypeScript end-to-end framework for the [Ednuva](https://stage.ednuva-website-8tf.pages.dev)
 e-learning website, set up for **agentic execution** with Playwright MCP.
 
+## Open in GitHub Codespaces
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/marwanabdelazim/e-learning-automation?ref=claude/modest-gauss-p89cuj)
+
+The dev container (`.devcontainer/`) uses the official Playwright image, so Chromium and its system libraries are
+ready; `npm ci` runs automatically and `.env` is created from `.env.example`.
+- Run everything: `npm test` (or the Testing panel of the Playwright extension).
+- View the report: `npm run report:serve` → opens on forwarded port 9323.
+- Credentials: add `TEST_USER_LOGIN`, `TEST_USER_PASSWORD`, `TEST_MOBILE`, `TEST_OTP` as
+  [Codespaces secrets](https://github.com/settings/codespaces) for this repo — they arrive as environment
+  variables, so nothing is stored in the repo.
+
 ## Quick start
 ```bash
 npm install

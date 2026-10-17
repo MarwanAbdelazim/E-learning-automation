@@ -11,9 +11,9 @@ never ask the user for credentials or manual steps.
 - `npm run typecheck` – must pass before committing
 
 ## Agentic workflow (Playwright MCP)
-MCP servers are in `.mcp.json`:
-- `playwright` – live browser (`browser_navigate`, `browser_snapshot`, `browser_click`, …) for exploring the site.
-- `playwright-test` – runs/debugs tests (`test_run`, `test_debug`) for the agents in `.claude/agents/`.
+The MCP server is in `.mcp.json`: `playwright-test` (bundled with `@playwright/test`, same version and browser as the
+suite). It provides the live browser (`browser_navigate`, `browser_snapshot`, `browser_click`, …) for exploring the
+site and test tools (`test_run`, `test_debug`) for the agents in `.claude/agents/`.
 
 Loop for each new feature step:
 1. **Plan** – `playwright-test-planner` explores the page and writes `specs/<feature>.plan.md`.
